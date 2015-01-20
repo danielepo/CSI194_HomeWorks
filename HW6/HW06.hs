@@ -12,6 +12,8 @@ import qualified Data.Text.IO as T
 import qualified Data.HashMap.Strict as HS
 import Data.Vector
 
+import qualified Data.Aeson.Parser as AP
+import qualified Data.Aeson.Types as AT
 ynToBool :: Value -> Value
 ynToBool (String "Y")  = Bool True
 ynToBool (String "N")  = Bool False
@@ -25,3 +27,6 @@ testYNToBool = (Bool True) == ynToBool (String "Y") && (Bool False) == ynToBool 
                Object (HS.singleton (T.pack "k") (String $ T.pack "Value")) == ynToBool (Object (HS.singleton (T.pack "k") (String $ T.pack "Value"))) &&
                Object (HS.singleton (T.pack "k") (String $ T.pack "T")) == ynToBool (Object (HS.singleton (T.pack "k") (String $ T.pack "Y"))) -- &&
 --               Object (Data.Vector.fromList [Bool True, Bool False, String "Hello"]) == ynToBool (Object (Data.Vector.fromList [String (T.pack "Y"), String (T.pack "N"), String "Hello"]))
+
+parseData :: B.ByteString -> Either String Value
+parseData x = fmap ynToBool (eitherDecode x)
