@@ -38,3 +38,11 @@ instance FromJSON Market
 
 parseMarkets :: B.ByteString -> Either String [Market]
 parseMarkets x = fmap (\y -> case fromJSON y of (Success s) ->  s ; (Error e) -> []) (parseData x)
+
+
+loadData :: IO [Market]
+loadData = do
+  file <- B.readFile "markets.json"
+  case parseMarkets file of
+    Left l  -> fail "Errore durante il parsing"
+    Right r -> return r
