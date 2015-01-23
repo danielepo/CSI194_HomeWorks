@@ -30,3 +30,11 @@ testYNToBool = (Bool True) == ynToBool (String "Y") && (Bool False) == ynToBool 
 
 parseData :: B.ByteString -> Either String Value
 parseData x = fmap ynToBool (eitherDecode x)
+
+data Market = Market { marketname :: T.Text, x :: Double, y :: Double, state :: T.Text }
+  deriving (Show, Generic)
+
+instance FromJSON Market
+
+parseMarkets :: B.ByteString -> Either String [Market]
+parseMarkets x = fmap (\y -> case fromJSON y of (Success s) ->  s ; (Error e) -> []) (parseData x)
