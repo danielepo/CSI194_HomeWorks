@@ -11,6 +11,7 @@ import qualified Data.Text.IO as T
 
 import qualified Data.HashMap.Strict as HS
 import Data.Vector
+import Data.List
 
 import qualified Data.Aeson.Parser as AP
 import qualified Data.Aeson.Types as AT
@@ -46,3 +47,13 @@ loadData = do
   case parseMarkets file of
     Left l  -> fail "Errore durante il parsing"
     Right r -> return r
+
+data OrdList a = OrdList { getOrdList :: [a] }
+  deriving (Eq, Show)
+
+instance Ord a => Monoid (OrdList a) where
+  mempty = OrdList []
+  mappend l r = OrdList $ sort $ getOrdList l Data.List.++ getOrdList r
+  mconcat l = conc l
+    where conc [] = mempty
+          conc (x:xs) = mappend x (conc xs)
