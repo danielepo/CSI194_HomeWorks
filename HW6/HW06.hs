@@ -63,7 +63,7 @@ instance Ord a => Monoid (OrdList a) where
 type Searcher m = T.Text -> [Market] -> m
 
 
-search :: Monoid m => (Market -> m) -> T.Text -> [Market] -> m
+search :: Monoid m => (Market -> m) -> Searcher m
 search f t ms = mconcat $ map f $ filter (\m -> T.isInfixOf t (marketname m)) ms
 
 compose2 :: (c -> d) -> (a -> b -> c) -> a -> b -> d
@@ -72,9 +72,12 @@ compose2 = (.) . (.)
 -- r <- loadData
 -- mconcat $ map First $ map Just r
 
-firstFound :: T.Text -> [Market] -> Maybe Market
+firstFound :: Searcher (Maybe Market)
 firstFound t ms = getFirst $ search (First . Just) t ms
 
 
-lastFound :: T.Text -> [Market] -> Maybe Market
+lastFound :: Searcher (Maybe Market)
 lastFound t ms = getLast $ search (Last . Just) t ms
+
+allFound :: Searcher [Market]
+allFound = search (\x -> [x])
