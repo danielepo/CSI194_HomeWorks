@@ -10,7 +10,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T
 
 import qualified Data.HashMap.Strict as HS
-import Data.Vector
+import qualified Data.Vector as V
 import Data.List
 
 import qualified Data.Aeson.Parser as AP
@@ -19,7 +19,7 @@ ynToBool :: Value -> Value
 ynToBool (String "Y")  = Bool True
 ynToBool (String "N")  = Bool False
 ynToBool (Object o)    = Object $ HS.fromList $ Prelude.map (\(l,r) -> (l,ynToBool r)) (HS.toList o)
-ynToBool (Array a)     = Array (Data.Vector.map ynToBool a)
+ynToBool (Array a)     = Array (V.map ynToBool a)
 ynToBool x             = x
 
 
@@ -53,7 +53,14 @@ data OrdList a = OrdList { getOrdList :: [a] }
 
 instance Ord a => Monoid (OrdList a) where
   mempty = OrdList []
-  mappend l r = OrdList $ sort $ getOrdList l Data.List.++ getOrdList r
+  mappend l r = OrdList $ sort $ getOrdList l ++ getOrdList r
   mconcat l = conc l
     where conc [] = mempty
           conc (x:xs) = mappend x (conc xs)
+
+
+type Searcher m = T.Text -> [Market] -> m
+
+
+search :: Monoid m => (Market -> m) -> T.Text -> [Market] -> m
+search f t ms = mconcat (map f (filter (\m -> T.isInfixOf t (marketname m)) ms))
