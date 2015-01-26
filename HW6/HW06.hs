@@ -23,13 +23,6 @@ ynToBool (Object o)    = Object $ HS.fromList $ Prelude.map (\(l,r) -> (l,ynToBo
 ynToBool (Array a)     = Array (V.map ynToBool a)
 ynToBool x             = x
 
-
-testYNToBool :: Bool
-testYNToBool = (Bool True) == ynToBool (String "Y") && (Bool False) == ynToBool (String "N") &&
-               Object (HS.singleton (T.pack "k") (String $ T.pack "Value")) == ynToBool (Object (HS.singleton (T.pack "k") (String $ T.pack "Value"))) &&
-               Object (HS.singleton (T.pack "k") (String $ T.pack "T")) == ynToBool (Object (HS.singleton (T.pack "k") (String $ T.pack "Y"))) -- &&
---               Object (Data.Vector.fromList [Bool True, Bool False, String "Hello"]) == ynToBool (Object (Data.Vector.fromList [String (T.pack "Y"), String (T.pack "N"), String "Hello"]))
-
 parseData :: B.ByteString -> Either String Value
 parseData x = fmap ynToBool (eitherDecode x)
 
@@ -40,7 +33,6 @@ instance FromJSON Market
 
 parseMarkets :: B.ByteString -> Either String [Market]
 parseMarkets x = fmap (\y -> case fromJSON y of (Success s) ->  s ; (Error e) -> []) (parseData x)
-
 
 loadData :: IO [Market]
 loadData = do
@@ -59,9 +51,7 @@ instance Ord a => Monoid (OrdList a) where
     where conc [] = mempty
           conc (x:xs) = mappend x (conc xs)
 
-
 type Searcher m = T.Text -> [Market] -> m
-
 
 search :: Monoid m => (Market -> m) -> Searcher m
 search f t ms = mconcat $ map f $ filter (\m -> T.isInfixOf t (marketname m)) ms
@@ -69,12 +59,8 @@ search f t ms = mconcat $ map f $ filter (\m -> T.isInfixOf t (marketname m)) ms
 compose2 :: (c -> d) -> (a -> b -> c) -> a -> b -> d
 compose2 = (.) . (.)
 
--- r <- loadData
--- mconcat $ map First $ map Just r
-
 firstFound :: Searcher (Maybe Market)
 firstFound t ms = getFirst $ search (First . Just) t ms
-
 
 lastFound :: Searcher (Maybe Market)
 lastFound t ms = getLast $ search (Last . Just) t ms
