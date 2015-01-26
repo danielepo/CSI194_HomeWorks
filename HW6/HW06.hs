@@ -74,3 +74,7 @@ compose2 = (.) . (.)
 
 firstFound :: T.Text -> [Market] -> Maybe Market
 firstFound t ms = getFirst $ search (First . Just) t ms
+
+
+lastFound :: T.Text -> [Market] -> Maybe Market
+lastFound t ms = getLast $ search (Last . Just) t ms
