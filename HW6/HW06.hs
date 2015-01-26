@@ -12,6 +12,7 @@ import qualified Data.Text.IO as T
 import qualified Data.HashMap.Strict as HS
 import qualified Data.Vector as V
 import Data.List
+import Data.Maybe
 
 import qualified Data.Aeson.Parser as AP
 import qualified Data.Aeson.Types as AT
@@ -63,4 +64,13 @@ type Searcher m = T.Text -> [Market] -> m
 
 
 search :: Monoid m => (Market -> m) -> T.Text -> [Market] -> m
-search f t ms = mconcat (map f (filter (\m -> T.isInfixOf t (marketname m)) ms))
+search f t ms = mconcat $ map f $ filter (\m -> T.isInfixOf t (marketname m)) ms
+
+compose2 :: (c -> d) -> (a -> b -> c) -> a -> b -> d
+compose2 = (.) . (.)
+
+-- r <- loadData
+-- mconcat $ map First $ map Just r
+
+firstFound :: T.Text -> [Market] -> Maybe Market
+firstFound t ms = getFirst $ search (First . Just) t ms
