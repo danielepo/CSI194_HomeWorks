@@ -81,3 +81,6 @@ lastFound t ms = getLast $ search (Last . Just) t ms
 
 allFound :: Searcher [Market]
 allFound = search (\x -> [x])
+
+numberFound :: Searcher Int
+numberFound t m = length $ search (\x -> [x]) t m
